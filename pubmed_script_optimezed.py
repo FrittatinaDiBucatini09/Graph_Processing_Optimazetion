@@ -1,17 +1,17 @@
 import os
 import sys
 import json
-import json
 import pickle
-import numpy as np
-from tqdm import tqdm
-from collections import defaultdict
-import networkx as nx
-import pickle
-from datasets import load_dataset, load_from_disk, DatasetDict
-from huggingface_hub import login
 import traceback
 
+import numpy as np
+import networkx as nx
+
+from tqdm import tqdm
+from collections import defaultdict
+from datasets import load_dataset, load_from_disk, DatasetDict
+from huggingface_hub import login
+from itertools import chain
 
 ####################
 # Get the datasets #
@@ -102,9 +102,7 @@ def turn_a_list_of_lists_into_a_set(lst):
     old elements: 6, new elements: 4
     {1, 3, 4, 44}
     '''
-    # Flatten the list of lists into a single list
-    new_lst = [x for xs in lst for x in xs]
-    # Convert the list to a set to remove duplicates
+    new_lst = list(chain.from_iterable(lst))
     unique_lst = set(new_lst)
     print(f"old elements: {len(new_lst)}, new elements: {len(unique_lst)}")
     return unique_lst
@@ -135,11 +133,8 @@ def get_article_pointers(path):
 
 
 def remove_redundant_lists(lst):
-    # Use a set of tuples to remove duplicates
-    unique_relas_set = set(tuple(rel) for rel in lst)  
-    unique_relas = [list(rel) for rel in unique_relas_set]
-    return unique_relas
-
+    # Converte direttamente le liste in un set di tuple
+    return [list(rel) for rel in set(tuple(rel) for rel in lst)]
 
 def load_metadata_relations(path):
     with open(path) as f:
@@ -370,9 +365,11 @@ for fname in FNAMES:
     # For pubmedqa
     articles_pubmedqa = treat_topk_articles_as_unique_articles(fname, db_w_metadata_pubmedqa, retr_info_ds_pubmedqa)
 
+    # Rimuovi tqdm nei loop per scrivere articoli se l'operazione è rapida
     with open(f"./data/medmcqa/metadata/{fname}_ptrs.txt", "w") as fout:
-        for doc in tqdm(articles_medmcqa['PMID']):
-            print (doc, file=fout)
+        for doc in articles_medmcqa['PMID']:
+            print(doc, file=fout)
+
 
     with open(f"./data/medmcqa/metadata/{fname}_vocabs.txt", "w", encoding='utf-8') as fout:
         for doc in tqdm(articles_medmcqa['Abstract']):
@@ -481,4 +478,3 @@ def construct_metadata_graph(md_id2concept, md_relas_lst, output_path):
 md_concept2id_medmcqa, md_id2relation_medmcqa, md_relation2id_medmcqa, md_KG_medmcqa = construct_metadata_graph(md_id2concept_medmcqa, md_relas_lst_medmcqa, "./data/medmcqa/metadata/metadata.graph")
 # PUBMEDQA
 md_concept2id_pubmedqa, md_id2relation_pubmedqa, md_relation2id_pubmedqa, md_KG_pubmedqa = construct_metadata_graph(md_id2concept_pubmedqa, md_relas_lst_pubmedqa, "./data/pubmedqa/metadata/metadata.graph")
-
