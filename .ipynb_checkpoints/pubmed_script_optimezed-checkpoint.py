@@ -13,7 +13,6 @@ from datasets import load_dataset, load_from_disk, DatasetDict
 from huggingface_hub import login
 from itertools import chain
 
-
 ####################
 # Get the datasets #
 ####################
@@ -58,6 +57,7 @@ db_w_metadata_pubmedqa = load_from_disk("./data/hf/db_w_metadata_pubmedqa.hf")
 retr_info_ds_pubmedqa = load_from_disk("./data/hf/retr_info_ds_pubmedqa.hf")
 
 
+
 ###########################
 # General helpful methods #
 ###########################
@@ -92,6 +92,7 @@ def dict_of_lists_to_list_of_dicts(dict_of_lists):
     # Use zip to group elements and create the list of dictionaries
     return [dict(zip(keys, values)) for values in zip(*lists)]
 
+
 def turn_a_list_of_lists_into_a_set(lst):
     '''
     Transforms a list of lists into as single chonky set, thus obtain a single set
@@ -106,6 +107,7 @@ def turn_a_list_of_lists_into_a_set(lst):
     print(f"old elements: {len(new_lst)}, new elements: {len(unique_lst)}")
     return unique_lst
 
+
 # Function to treat top K articles as unique articles
 def treat_topk_articles_as_unique_articles(fname, db_metadata, retr_info_ds):
     # Get the list of article indexes for each question
@@ -117,8 +119,10 @@ def treat_topk_articles_as_unique_articles(fname, db_metadata, retr_info_ds):
     # Return the unique articles from the metadata dataset
     return db_metadata[fname][unique_articles_indexes]
 
+
 def remove_newlines_from_list(input_list):
     return [s.strip() for s in input_list]
+
 
 def get_article_pointers(path):
     md_id2concept = []
@@ -126,6 +130,7 @@ def get_article_pointers(path):
         lines = fin.readlines()
         md_id2concept = [l for l in remove_newlines_from_list(lines)]
     return md_id2concept
+
 
 def remove_redundant_lists(lst):
     # Converte direttamente le liste in un set di tuple
@@ -169,7 +174,7 @@ class RelationHandler():
         ]
 
         self.relas_dict = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "6": 5, "10": 6, "12": 7, "16": 8, "17": 9, "18": 10, "20": 11, "26": 12, "30": 13, "233": 14}
-   
+
         self.metadata_relations = [
             'author_in_common',
             'mesh_term_in_common',
@@ -247,6 +252,7 @@ class RelationHandler():
         return json_data
     
 relation_handler =  RelationHandler()
+
 
 
 ################
@@ -348,6 +354,7 @@ def construct_graph():
 concept2id, id2relation, relation2id, KG = construct_graph()
 
 
+
 ####################################
 # Sort of preprocessing for PUBMED #
 ####################################
@@ -376,6 +383,7 @@ for fname in FNAMES:
         for doc in tqdm(articles_pubmedqa['Abstract']):
             print(doc, file=fout)
 
+    
 
 # - md_concept2id
 #   A long ass dict with all the PMIDs that were present in "{fname}_ptrs.txt"`
@@ -403,6 +411,7 @@ for fname in FNAMES:
     with open(f"./data/medmcqa/metadata/{fname}_metadata_relations.json", "w") as fout:
         json.dump(k, fout, ensure_ascii=False)
 
+
     # Create the realtion for pubmedqa
     relations_pubmedqa = relation_handler.create_metadata_relations(fname, db_w_metadata_pubmedqa, retr_info_ds_pubmedqa)
 
@@ -418,6 +427,7 @@ for fname in FNAMES:
 # Load the relations of the split FNAME
 md_relas_lst_medmcqa = load_metadata_relations(f"./data/medmcqa/metadata/{FNAME}_metadata_relations.json")
 md_relas_lst_pubmedqa = load_metadata_relations(f"./data/pubmedqa/metadata/{FNAME}_metadata_relations.json")
+
 
 
 ##############################
@@ -450,7 +460,7 @@ def construct_metadata_graph(md_id2concept, md_relas_lst, output_path):
             subj = concept2id[str(relation[0])]
             obj = concept2id[str(relation[1])]
             rel = relation[2]
-
+        
             weight = 1.
             graph.add_edge(subj, obj, rel=rel, weight=weight)
             attrs.add((subj, obj, rel))
