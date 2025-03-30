@@ -6,22 +6,24 @@ Questo script carica i dataset MedMCQA e PubMedQA, esegue il preprocessing
 dei metadati, costruisce grafi di conoscenza a partire da relazioni definite in un database (DDB)
 e salva i risultati su disco.
 
-Autore: [Il Tuo Nome]
-Data: [Data]
+Autore: :)
+Data: :(
 """
 
 import os
+import sys
 import json
 import pickle
 import traceback
-from collections import defaultdict
-from itertools import chain
 
 import numpy as np
 import networkx as nx
+
 from tqdm import tqdm
-from datasets import load_from_disk, DatasetDict
+from collections import defaultdict
+from datasets import load_dataset, load_from_disk, DatasetDict
 from huggingface_hub import login
+from itertools import chain
 
 # =============================================================================
 # Configurazione e Caricamento Datasets
@@ -346,6 +348,7 @@ def construct_graph(relas_lst, id2concept, relation_handler):
     output_path = "./data/ddb/ddb.graph"
     pickle.dump(graph, open(output_path, "wb"))
     return concept2id, id2relation, relation2id, graph
+
 
 
 # =============================================================================
