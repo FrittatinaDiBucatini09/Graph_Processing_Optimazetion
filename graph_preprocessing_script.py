@@ -240,7 +240,6 @@ def construct_metadata_graph(article_pmids, metadata_relations, output_path, rel
 # =============================================================================
 
 if __name__ == "__main__":
-    start_time = time.time()
     
     # -----------------------------------------------------------
     # Reading command-line parameters
@@ -270,7 +269,8 @@ if __name__ == "__main__":
             print(FileNotFoundError)
             print("Please specify a valid dataset path.")
             continue
-        
+       
+    start_time = time.time() 
     # -----------------------------------------------------------
     # Extracting unique articles
     # -----------------------------------------------------------
