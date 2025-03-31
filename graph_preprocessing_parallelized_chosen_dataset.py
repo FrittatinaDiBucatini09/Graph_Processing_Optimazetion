@@ -2,12 +2,12 @@
 """
 Single Dataset Graph Preprocessing
 -----------------------------------
-Questo script accetta da riga di comando:
+Questo script richiede tre paramentri a linea di comando:
 1) numero di thread,
 2) path al dataset dei metadati,
 3) path al dataset di retrieval.
 
-Poi crea un solo grafo di metadati (basato sugli articoli unici e le relazioni
+Poi crea un grafo di metadati (basato sugli articoli unici e le relazioni
 autori in comune, stesso anno, stessa rivista, ecc.), e lo salva su disco.
 """
 
@@ -24,6 +24,7 @@ from tqdm import tqdm
 
 # Nome dello split su cui calcolare le relazioni (eventualmente parametrizzabile).
 FNAME = "train"
+
 
 # =============================================================================
 # Funzioni di Utilità
@@ -118,7 +119,7 @@ def process_relation_index(i, fname, db_metadata, retr_info_ds, relation_handler
     return local_relations
 
 
-def create_metadata_relations_parallel(fname, db_metadata, retr_info_ds, relation_handler, num_workers=4):
+def create_metadata_relations_parallel(fname, db_metadata, retr_info_ds, relation_handler, num_workers):
     """
     Crea le relazioni sui metadati in parallelo usando ProcessPoolExecutor.
     """
@@ -135,6 +136,7 @@ def create_metadata_relations_parallel(fname, db_metadata, retr_info_ds, relatio
             except Exception as e:
                 print(f"Error in processing index: {e}")
     return all_relations
+
 
 # =============================================================================
 # Classe RelationHandler
@@ -231,8 +233,20 @@ if __name__ == "__main__":
     # -----------------------------------------------------------
     # Lettura parametri da linea di comando
     # -----------------------------------------------------------
-    num_threads = int(input("Specify number of threads: "))
+    
+    # Controllo sul numero di threads
+    while True:
+        try:
+            num_threads = int(input("Specify number of threads: "))
+        except ValueError:
+            print("The number of threads must be an integer")
+            continue
+        if num_threads <= 0:
+            print("The number of threads must be greater than 0")
+            continue
+        break
 
+    # Controllo sull'esistenza del dataset
     while True:
         try:
             dataset_metadata_path = input("Specify dataset for metadata relations: ")
